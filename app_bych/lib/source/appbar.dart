@@ -1,34 +1,56 @@
 //import a flutter helper library
-import 'package:flutter/material.dart';
+import 'dart:developer';
 
-class newApp extends StatefulWidget {
+import 'package:flutter/material.dart';
+//
+//import then 'show get' only imports this one get
+import 'package:http/http.dart' show get;
+
+import 'models/image.dart';
+
+import 'dart:convert';
+
+import 'widgets/imagelists.dart';
+
+class NewApp extends StatefulWidget {
   //
   createState() {
-    return newAppState();
+    return NewAppState();
   }
 }
 
 //create our own custom widget which
 //will extend a "StatelessWidget" class
-class newAppState extends State<newApp> {
+class NewAppState extends State<NewApp> {
   int count = 0;
   bool dark = false;
+
+  List<ModelImages> images = [];
+
+  //funtion to show an image every time
+  //floating button is pressed
+  void getImage() async {
+    //
+    //here we make a http request
+    count += 1;
+    final response = await get(
+        Uri.parse('https://jsonplaceholder.typicode.com/photos/$count'));
+    final imagemodel = ModelImages.fromJson(json.decode(response.body));
+
+    setState(() {
+      images.add(imagemodel);
+    });
+  }
 
   //
   //here we define a 'build' method that returns
   //the widgets that our custom widget will show
+
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: dark ? ThemeData.dark() : ThemeData.light(),
       home: Scaffold(
-        //just to show how many times the counter
-        //has been pressed
-        body: Text(
-          'You have pressed the button \n$count\ntimes, bych!',
-          //
-          //styling the text shown in the main screen
-          style: TextStyle(fontSize: 20, fontStyle: FontStyle.italic),
-        ),
+        body: ImageList(images),
         //floating action button
         floatingActionButton: FloatingActionButton(
           //
@@ -37,11 +59,7 @@ class newAppState extends State<newApp> {
           child: Icon(Icons.add_photo_alternate),
 
           //this is what happens when you press the button
-          onPressed: () {
-            setState(() {
-              count += 1;
-            });
-          },
+          onPressed: getImage,
         ),
 
         //total top app bar
